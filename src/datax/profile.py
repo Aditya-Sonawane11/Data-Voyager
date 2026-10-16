@@ -183,10 +183,13 @@ class DatasetProfile:
     correlations: CorrelationProfile
     insights: list[Insight]
     config: Settings
+    _df: Any = field(default=None, repr=False)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert profile to a nested Python dictionary."""
-        return asdict(self)
+        d = asdict(self)
+        d.pop("_df", None)
+        return d
 
     def to_json(self, path: str | Path | None = None, indent: int = 2) -> str:
         """Serialize profile to a JSON string or save to file."""
@@ -241,7 +244,7 @@ class DatasetProfile:
         """Generate standalone HTML report."""
         from datax.report.builder import ReportBuilder
 
-        builder = ReportBuilder(self)
+        builder = ReportBuilder(self, df=self._df)
         return builder.generate(output_path=path)
 
     def chat(self, mode: str = "offline", **kwargs: Any) -> Any:

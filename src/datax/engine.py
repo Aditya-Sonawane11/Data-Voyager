@@ -119,6 +119,7 @@ def analyze(
             correlations=correlations,
             insights=insights,
             config=cfg,
+            _df=df,
         )
 
     except (DatasetEmptyError, TypeError):

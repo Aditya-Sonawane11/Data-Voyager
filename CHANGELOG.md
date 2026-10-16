@@ -15,4 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Correlation analysis supporting Pearson and Spearman with configurable column thresholds.
 - Rule-based automated insight discovery engine.
 - Structured profile representation (`DatasetProfile`) with JSON serialization and console summaries.
-- Comprehensive unit test suite with edge-case fixtures.
+- Interactive Plotly visualization suite (`distributions.py`, `relationships.py`, `missing.py`).
+- Histograms, outlier boxplots, and categorical frequency bar charts.
+- Correlation heatmaps, bivariate scatter plots, and grouped segment boxplots.
+- Standalone offline HTML report builder using Jinja2 with bundled Plotly JS and responsive navigation.
+- Comprehensive unit test suite with 28 automated tests covering edge cases and visualization generation.

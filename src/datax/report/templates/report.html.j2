@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title | e }} - Datax Interactive EDA Report</title>
+    
+    {% if plotly_js %}
+    <!-- Standalone Offline Plotly JS Bundle -->
+    <script>{{ plotly_js | safe }}</script>
+    {% else %}
+    <!-- CDN Plotly JS -->
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    {% endif %}
+
+    <style>
+        :root {
+            --bg-base: #0b0f19;
+            --bg-surface: #111827;
+            --bg-surface-elevated: #1f2937;
+            --bg-hover: #374151;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-subtle: #6b7280;
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.15);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --critical: #f87171;
+            --border: #1f2937;
+            --border-highlight: #374151;
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-stack);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Header */
+        header.report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .report-title-badge {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .header-meta {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .offline-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--bg-surface-elevated);
+            color: var(--success);
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        .offline-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+        }
+
+        /* Navigation Tabs */
+        .tabs-nav {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            padding: 0.65rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: var(--bg-surface);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            background: var(--primary-glow);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        /* KPI Metric Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.35rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-highlight);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-subtle);
+            margin-bottom: 0.4rem;
+        }
+
+        .metric-val {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .metric-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.35rem;
+        }
+
+        /* Section Layouts */
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.75rem;
+        }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        table.profile-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        table.profile-table th {
+            background: #0f172a;
+            color: var(--text-muted);
+            padding: 0.9rem 1.1rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table.profile-table td {
+            padding: 0.9rem 1.1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        table.profile-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table.profile-table tr:hover td {
+            background: var(--bg-surface-elevated);
+        }
+
+        /* Badges & Pills */
+        .type-badge {
+            display: inline-block;
+            padding: 0.2rem 0.55rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .type-numerical { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        .type-categorical { background: rgba(167, 139, 250, 0.15); color: #c084fc; }
+        .type-boolean { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+        .type-datetime { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+        .type-other { background: rgba(156, 163, 175, 0.15); color: #9ca3af; }
+
+        .tag-warning {
+            display: inline-block;
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--warning);
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.4rem;
+        }
+
+        .tag-critical {
+            display: inline-block;
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--critical);
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.4rem;
+        }
+
+        /* Insights Cards */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .insight-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .insight-card.severity-critical { border-left: 4px solid var(--critical); }
+        .insight-card.severity-warning { border-left: 4px solid var(--warning); }
+        .insight-card.severity-info { border-left: 4px solid var(--primary); }
+
+        .insight-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .insight-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--text-subtle);
+        }
+
+        .insight-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .insight-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Charts Grid */
+        .chart-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.75rem;
+        }
+
+        /* Search input */
+        .search-bar {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.65rem 1rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Footer */
+        footer.report-footer {
+            margin-top: 4rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-subtle);
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="report-header">
+            <div class="brand-area">
+                <span class="brand-logo">DATAX</span>
+                <span class="report-title-badge">/ {{ title | e }}</span>
+            </div>
+            <div class="header-meta">
+                <span class="offline-pill">
+                    <span class="offline-indicator"></span>
+                    Offline Standalone Report
+                </span>
+            </div>
+        </header>
+
+        <!-- KPI Summary Cards -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Total Rows</div>
+                <div class="metric-val">{{ profile.overview.n_rows | format_num }}</div>
+                <div class="metric-sub">{{ profile.overview.n_cols }} Features</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Memory Footprint</div>
+                <div class="metric-val">{{ profile.overview.memory_formatted }}</div>
+                <div class="metric-sub">{{ profile.overview.total_cells | format_num }} Data Cells</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Missing Values</div>
+                <div class="metric-val">{{ profile.missing.total_missing_cells | format_num }}</div>
+                <div class="metric-sub">{{ "%.1f" | format(profile.missing.overall_missing_ratio * 100) }}% Overall Missing Rate</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Duplicate Rows</div>
+                <div class="metric-val">{{ profile.quality.duplicate_rows | format_num }}</div>
+                <div class="metric-sub">{{ "%.1f" | format(profile.quality.duplicate_ratio * 100) }}% Duplication Rate</div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs-nav" id="reportTabs">
+            <button class="tab-btn active" onclick="switchTab('tab-overview')">Overview</button>
+            <button class="tab-btn" onclick="switchTab('tab-columns')">Column Statistics</button>
+            <button class="tab-btn" onclick="switchTab('tab-distributions')">Distributions</button>
+            <button class="tab-btn" onclick="switchTab('tab-relationships')">Relationships & Heatmap</button>
+            <button class="tab-btn" onclick="switchTab('tab-quality')">Data Quality & Warnings</button>
+            <button class="tab-btn" onclick="switchTab('tab-insights')">Insights ({{ profile.insights | length }})</button>
+        </nav>
+
+        <!-- TAB 1: OVERVIEW -->
+        <div id="tab-overview" class="tab-panel active">
+            <div class="section-header">
+                <h2>Dataset Dimensions & Types</h2>
+                <p>High-level breakdown of semantic feature categories and missingness.</p>
+            </div>
+
+            <div class="charts-row">
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Feature Type Distribution</h3>
+                    <div class="table-responsive">
+                        <table class="profile-table">
+                            <thead>
+                                <tr><th>Category</th><th>Count</th><th>Ratio</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for type_name, count in profile.overview.type_counts.items() %}
+                                <tr>
+                                    <td><span class="type-badge type-{{ type_name }}">{{ type_name }}</span></td>
+                                    <td><strong>{{ count }}</strong></td>
+                                    <td>{{ "%.1f" | format((count / profile.overview.n_cols) * 100) }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {% if missing_chart_html %}
+                <div class="chart-box">
+                    {{ missing_chart_html | safe }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- TAB 2: COLUMN STATISTICS -->
+        <div id="tab-columns" class="tab-panel">
+            <div class="section-header">
+                <h2>Feature Profiles</h2>
+                <p>Comprehensive statistical breakdown for every column in the dataset.</p>
+            </div>
+
+            <input type="text" id="colSearch" class="search-bar" placeholder="Filter columns by name..." onkeyup="filterColumns()">
+
+            <div class="table-responsive">
+                <table class="profile-table" id="columnsTable">
+                    <thead>
+                        <tr>
+                            <th>Column Name</th>
+                            <th>Type</th>
+                            <th>Missing</th>
+                            <th>Distinct</th>
+                            <th>Distribution Summary</th>
+                            <th>Alerts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for col_name, col in profile.columns.items() %}
+                        <tr class="col-row">
+                            <td class="col-name"><strong>{{ col_name | e }}</strong></td>
+                            <td><span class="type-badge type-{{ col.inferred_type.value }}">{{ col.inferred_type.value }}</span></td>
+                            <td>{{ col.missing_count | format_num }} ({{ "%.1f" | format(col.missing_ratio * 100) }}%)</td>
+                            <td>{{ col.distinct_count | format_num }}</td>
+                            <td>
+                                {% if col.numerical_stats %}
+                                Mean: {{ "%.2f" | format(col.numerical_stats.mean) if col.numerical_stats.mean is not none else "-" }} |
+                                Med: {{ "%.2f" | format(col.numerical_stats.median) if col.numerical_stats.median is not none else "-" }} |
+                                Range: [{{ "%.2f" | format(col.numerical_stats.min) if col.numerical_stats.min is not none else "-" }}, {{ "%.2f" | format(col.numerical_stats.max) if col.numerical_stats.max is not none else "-" }}]
+                                {% elif col.categorical_stats %}
+                                Mode: {{ col.categorical_stats.mode | e }} ({{ col.categorical_stats.unique_count | format_num }} unique)
+                                {% elif col.datetime_stats %}
+                                Range: [{{ col.datetime_stats.min_date | e }} to {{ col.datetime_stats.max_date | e }}]
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% for w in col.warnings %}
+                                <span class="tag-warning" title="{{ w | e }}">{{ w | e }}</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 3: DISTRIBUTIONS -->
+        <div id="tab-distributions" class="tab-panel">
+            <div class="section-header">
+                <h2>Feature Distributions</h2>
+                <p>Interactive Plotly histograms, box plots, and categorical frequency bar charts.</p>
+            </div>
+
+            {% for chart in distribution_charts %}
+            <div class="chart-box">
+                {{ chart | safe }}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- TAB 4: RELATIONSHIPS -->
+        <div id="tab-relationships" class="tab-panel">
+            <div class="section-header">
+                <h2>Correlation & Feature Relationships</h2>
+                <p>Pairwise Pearson/Spearman associations and top correlated feature pairs.</p>
+            </div>
+
+            {% if heatmap_chart_html %}
+            <div class="chart-box" style="display: flex; justify-content: center;">
+                {{ heatmap_chart_html | safe }}
+            </div>
+            {% endif %}
+
+            {% if scatter_charts %}
+            <h3 style="margin: 1.5rem 0 1rem;">Strongly Associated Feature Scatter Plots</h3>
+            <div class="charts-row">
+                {% for sc in scatter_charts %}
+                <div class="chart-box">
+                    {{ sc | safe }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Ranked Correlation Pairs (|r| &ge; {{ profile.config.correlation_threshold }})</h3>
+                {% if profile.correlations.strong_correlations %}
+                <div class="table-responsive">
+                    <table class="profile-table">
+                        <thead>
+                            <tr><th>Feature A</th><th>Feature B</th><th>Coefficient (r)</th><th>Method</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for p in profile.correlations.strong_correlations %}
+                            <tr>
+                                <td><strong>{{ p.col1 | e }}</strong></td>
+                                <td><strong>{{ p.col2 | e }}</strong></td>
+                                <td><strong>{{ "%.3f" | format(p.coefficient) }}</strong></td>
+                                <td>{{ p.method | e }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p style="color: var(--text-muted); font-style: italic;">{{ profile.correlations.skip_reason or "No feature pairs met the strong correlation threshold." }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- TAB 5: DATA QUALITY & WARNINGS -->
+        <div id="tab-quality" class="tab-panel">
+            <div class="section-header">
+                <h2>Data Quality Audit</h2>
+                <p>Anomalies, duplicate records, zero-variance columns, and candidate keys.</p>
+            </div>
+
+            <div class="charts-row">
+                <div class="card">
+                    <h3 style="margin-bottom: 0.75rem;">Constant / Zero Variance Columns</h3>
+                    {% if profile.quality.constant_columns %}
+                    <ul style="margin-left: 1.25rem; color: var(--critical);">
+                        {% for c in profile.quality.constant_columns %}
+                        <li><strong>{{ c | e }}</strong> (contains single unique value)</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p style="color: var(--success);">✓ No constant zero-variance columns detected.</p>
+                    {% endif %}
+
+                    <h3 style="margin: 1.5rem 0 0.75rem;">Quasi-Constant Columns</h3>
+                    {% if profile.quality.quasi_constant_columns %}
+                    <ul style="margin-left: 1.25rem; color: var(--warning);">
+                        {% for c in profile.quality.quasi_constant_columns %}
+                        <li><strong>{{ c | e }}</strong> (&ge; {{ "%.0f" | format(profile.config.quasi_constant_threshold * 100) }}% identical values)</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p style="color: var(--success);">✓ No quasi-constant columns detected.</p>
+                    {% endif %}
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 0.75rem;">Candidate Entity Identifiers (Primary Keys)</h3>
+                    {% if profile.quality.potential_id_columns %}
+                    <ul style="margin-left: 1.25rem; color: var(--primary);">
+                        {% for c in profile.quality.potential_id_columns %}
+                        <li><strong>{{ c | e }}</strong> (100% unique, zero missing cells)</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p style="color: var(--text-muted);">No candidate unique identifier columns identified.</p>
+                    {% endif %}
+
+                    <h3 style="margin: 1.5rem 0 0.75rem;">Numerical Outlier Summary (1.5x IQR)</h3>
+                    {% if profile.quality.columns_with_outliers %}
+                    <ul style="margin-left: 1.25rem; color: var(--warning);">
+                        {% for c, count in profile.quality.columns_with_outliers.items() %}
+                        <li><strong>{{ c | e }}</strong>: {{ count | format_num }} outlier(s)</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p style="color: var(--success);">✓ No extreme IQR outliers detected.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 6: AUTOMATED INSIGHTS -->
+        <div id="tab-insights" class="tab-panel">
+            <div class="section-header">
+                <h2>Automated Analytical Engine Insights</h2>
+                <p>Algorithmic observations prioritized by severity.</p>
+            </div>
+
+            {% if profile.insights %}
+            <div class="insights-grid">
+                {% for ins in profile.insights %}
+                <div class="insight-card severity-{{ ins.severity }}">
+                    <div class="insight-top">
+                        <span class="insight-category">{{ ins.category | e }}</span>
+                        {% if ins.severity == 'critical' %}
+                        <span class="tag-critical">CRITICAL</span>
+                        {% elif ins.severity == 'warning' %}
+                        <span class="tag-warning">WARNING</span>
+                        {% else %}
+                        <span class="type-badge type-numerical">INFO</span>
+                        {% endif %}
+                    </div>
+                    <div class="insight-title">{{ ins.title | e }}</div>
+                    <div class="insight-desc">{{ ins.message | e }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card">
+                <p style="color: var(--success);">✓ No critical anomalies or warnings flagged for this dataset.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Footer -->
+        <footer class="report-footer">
+            <span>Generated by <strong>Datax v0.1.0</strong> (Offline-First Exploratory Data Analysis)</span>
+            <span>Zero Remote Telemetry &middot; Deterministic Ground Truth</span>
+        </footer>
+    </div>
+
+    <!-- Tab & Search Interaction Script -->
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            const panel = document.getElementById(tabId);
+            if (panel) panel.classList.add('active');
+            
+            const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+            if (btn) btn.classList.add('active');
+
+            // Trigger Plotly relayout on visible charts in the newly activated tab
+            window.dispatchEvent(new Event('resize'));
+        }
+
+        function filterColumns() {
+            const query = document.getElementById('colSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#columnsTable .col-row');
+            rows.forEach(row => {
+                const name = row.querySelector('.col-name').textContent.toLowerCase();
+                row.style.display = name.includes(query) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

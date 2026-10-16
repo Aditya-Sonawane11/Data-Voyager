@@ -48,7 +48,7 @@ def test_to_html_generation(tmp_path: Path, test_df: pd.DataFrame):
     html_str = report.to_html()
     assert "<!DOCTYPE html>" in html_str
     assert "HTML Export Test" in html_str
-    assert "Column Profile Summary" in html_str
+    assert "Feature Profiles" in html_str
 
     # File export
     html_file = tmp_path / "report.html"
