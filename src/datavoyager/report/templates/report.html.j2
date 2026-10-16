@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title | e }} - DataVoyager Interactive EDA Report</title>
     
+    {% if logo_data_uri %}
+    <!-- Inline base64 favicon - works fully offline -->
+    <link rel="icon" type="image/png" href="{{ logo_data_uri }}">
+    {% endif %}
+
     {% if plotly_js %}
     <!-- Standalone Offline Plotly JS Bundle -->
     <script>{{ plotly_js | safe }}</script>
@@ -72,6 +77,14 @@
             background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .brand-logo-img {
+            height: 44px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.35));
+            border-radius: 6px;
         }
 
         .report-title-badge {
@@ -398,7 +411,11 @@
         <!-- Header -->
         <header class="report-header">
             <div class="brand-area">
+                {% if logo_data_uri %}
+                <img src="{{ logo_data_uri }}" alt="DataVoyager Logo" class="brand-logo-img">
+                {% else %}
                 <span class="brand-logo">DATAVOYAGER</span>
+                {% endif %}
                 <span class="report-title-badge">/ {{ title | e }}</span>
             </div>
             <div class="header-meta">

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 from pathlib import Path
 from typing import Any
 
@@ -50,6 +51,23 @@ class ReportBuilder:
     def _render_template(self) -> str:
         p = self.profile
         cfg = p.config
+
+        # 0. Load logo as base64 data URI for offline embedding
+        logo_data_uri: str | None = None
+        try:
+            # Look for logo relative to the package assets folder or project root
+            candidates = [
+                Path(__file__).parent.parent.parent.parent / "assets" / "logo.png",
+                Path(__file__).parent.parent.parent.parent.parent / "assets" / "logo.png",
+            ]
+            for logo_path in candidates:
+                if logo_path.exists():
+                    raw = logo_path.read_bytes()
+                    b64 = base64.b64encode(raw).decode("ascii")
+                    logo_data_uri = f"data:image/png;base64,{b64}"
+                    break
+        except Exception:
+            logo_data_uri = None
 
         # 1. Plotly JS asset bundling
         plotly_js = plotly.offline.get_plotlyjs() if cfg.offline_mode else None
@@ -138,6 +156,7 @@ class ReportBuilder:
             profile=p,
             title=cfg.title,
             plotly_js=plotly_js,
+            logo_data_uri=logo_data_uri,
             missing_chart_html=missing_chart_html,
             heatmap_chart_html=heatmap_chart_html,
             distribution_charts=distribution_charts,

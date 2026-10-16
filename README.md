@@ -1,6 +1,14 @@
-# DataVoyager
+<p align="center">
+  <img src="assets/logo.png" alt="DataVoyager Logo" width="160"/>
+</p>
 
-> An offline-first Python EDA library with interactive reports and conversational assistance.
+<h1 align="center">DataVoyager</h1>
+<p align="center"><em>An offline-first Python EDA library with interactive reports and conversational assistance.</em></p>
+
+<p align="center">
+  <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-blue?style=flat-square">
+  <img alt="Offline First" src="https://img.shields.io/badge/offline--first-✓-success?style=flat-square">
+</p>
 
 ---
 
