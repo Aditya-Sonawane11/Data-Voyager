@@ -56,9 +56,3 @@ assistant = report.chat(mode="offline")
 answer = assistant.ask("Which columns have the most missing values?")
 print(answer)
 ```
-
----
-
-## License
-
-Proprietary © 2026 Aditya. All rights reserved.
