@@ -172,3 +172,18 @@ def test_invalid_settings():
 
     with pytest.raises(ConfigurationError):
         datavoyager.analyze(pd.DataFrame({"a": [1, 2]}), correlation_method="invalid_method")
+
+
+def test_datetime_column_profiling():
+    """Verify that datasets with ISO date/datetime strings profile cleanly."""
+    df = pd.DataFrame({
+        "date": ["2012-01-01", "2012-01-02", "2012-01-03", "2012-01-04"],
+        "temp_max": [12.8, 10.6, 11.7, 12.2],
+        "weather": ["drizzle", "rain", "rain", "sun"],
+    })
+    report = datavoyager.analyze(df)
+    assert report.columns["date"].inferred_type == ColumnType.DATETIME
+    dt_stats = report.columns["date"].datetime_stats
+    assert dt_stats is not None
+    assert dt_stats.count == 4
+    assert dt_stats.min_date is not None

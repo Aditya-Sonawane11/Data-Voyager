@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import warnings as py_warnings
 from typing import Any
 
 import numpy as np
@@ -172,15 +173,13 @@ def profile_datetime_column(
     total_rows: int,
 ) -> tuple[DatetimeStats, list[str]]:
     """Compute temporal range and unique counts for a datetime column."""
-    warnings: list[str] = []
+    col_warnings: list[str] = []
 
     # Ensure datetime parsing if needed
     if not pd.api.types.is_datetime64_any_dtype(series):
         try:
-            import warnings
-
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
+            with py_warnings.catch_warnings():
+                py_warnings.simplefilter("ignore")
                 converted = pd.to_datetime(series, errors="coerce")
         except Exception:
             converted = series
@@ -191,8 +190,8 @@ def profile_datetime_column(
     valid_count = len(valid)
 
     if valid_count == 0:
-        warnings.append("All values in this datetime column are missing or unparseable.")
-        return DatetimeStats(count=0), warnings
+        col_warnings.append("All values in this datetime column are missing or unparseable.")
+        return DatetimeStats(count=0), col_warnings
 
     min_date = str(valid.min())
     max_date = str(valid.max())
@@ -214,7 +213,7 @@ def profile_datetime_column(
         unique_count=unique_count,
     )
 
-    return stats, warnings
+    return stats, col_warnings
 
 
 def analyze_columns(

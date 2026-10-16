@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import warnings as py_warnings
 import pandas as pd
 
 from datavoyager.config import Settings
@@ -58,10 +59,8 @@ def infer_column_type(series: pd.Series) -> ColumnType:
     # Only if sample looks like ISO dates or datetimes
     if all(isinstance(val, str) for val in sample):
         try:
-            import warnings
-
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
+            with py_warnings.catch_warnings():
+                py_warnings.simplefilter("ignore")
                 pd.to_datetime(sample, errors="raise")
             return ColumnType.DATETIME
         except Exception:
