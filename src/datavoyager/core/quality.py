@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from datax.profile import ColumnProfile, QualityProfile
+from datavoyager.profile import ColumnProfile, QualityProfile
 
 
 def analyze_quality(

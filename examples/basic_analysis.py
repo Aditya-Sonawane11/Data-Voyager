@@ -1,11 +1,11 @@
-"""Basic end-to-end example using Datax for exploratory data analysis."""
+"""Basic end-to-end example using DataVoyager for exploratory data analysis."""
 
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
 
-import datax
+import datavoyager
 
 
 def main() -> None:
@@ -28,8 +28,8 @@ def main() -> None:
     # An extreme outlier
     df.loc[5, "income"] = 1_250_000.0
 
-    print("Analyzing dataset with Datax...")
-    report = datax.analyze(df, title="Customer Churn & Demographics EDA")
+    print("Analyzing dataset with DataVoyager...")
+    report = datavoyager.analyze(df, title="Customer Churn & Demographics EDA")
 
     # 2. Print terminal summary
     print("\n" + "=" * 60)

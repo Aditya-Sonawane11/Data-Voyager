@@ -6,7 +6,7 @@ from typing import Any
 
 import pandas as pd
 
-from datax.profile import MissingProfile
+from datavoyager.profile import MissingProfile
 
 
 def analyze_missing(df: pd.DataFrame) -> MissingProfile:

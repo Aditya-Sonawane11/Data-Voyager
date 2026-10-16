@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from datax.profile import ColumnType, DatasetProfile
+from datavoyager.profile import ColumnType, DatasetProfile
 
 
 def tool_get_overview(profile: DatasetProfile) -> dict[str, Any]:

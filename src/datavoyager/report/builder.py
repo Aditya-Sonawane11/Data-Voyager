@@ -1,4 +1,4 @@
-"""HTML report generator for Datax profiles using Jinja2 and Plotly."""
+"""HTML report generator for DataVoyager profiles using Jinja2 and Plotly."""
 
 from __future__ import annotations
 
@@ -10,15 +10,15 @@ import pandas as pd
 import plotly.io as pio
 import plotly.offline
 
-from datax.exceptions import ReportGenerationError
-from datax.profile import ColumnType, DatasetProfile
-from datax.visualization.distributions import (
+from datavoyager.exceptions import ReportGenerationError
+from datavoyager.profile import ColumnType, DatasetProfile
+from datavoyager.visualization.distributions import (
     create_boxplot,
     create_category_bar,
     create_histogram,
 )
-from datax.visualization.missing import create_missing_bar
-from datax.visualization.relationships import (
+from datavoyager.visualization.missing import create_missing_bar
+from datavoyager.visualization.relationships import (
     create_correlation_heatmap,
     create_scatter_plot,
 )

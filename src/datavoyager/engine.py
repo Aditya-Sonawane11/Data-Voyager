@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import pandas as pd
 
-from datax.config import Settings
-from datax.core.columns import analyze_columns
-from datax.core.correlations import analyze_correlations
-from datax.core.insights import generate_insights
-from datax.core.missing import analyze_missing
-from datax.core.overview import analyze_overview
-from datax.core.quality import analyze_quality
-from datax.exceptions import AnalysisError, DatasetEmptyError
-from datax.profile import DatasetProfile
+from datavoyager.config import Settings
+from datavoyager.core.columns import analyze_columns
+from datavoyager.core.correlations import analyze_correlations
+from datavoyager.core.insights import generate_insights
+from datavoyager.core.missing import analyze_missing
+from datavoyager.core.overview import analyze_overview
+from datavoyager.core.quality import analyze_quality
+from datavoyager.exceptions import AnalysisError, DatasetEmptyError
+from datavoyager.profile import DatasetProfile
 
 
 def analyze(

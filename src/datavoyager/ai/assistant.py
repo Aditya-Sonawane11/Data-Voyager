@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from datax.ai.tools import (
+from datavoyager.ai.tools import (
     tool_get_column_details,
     tool_get_duplicate_summary,
     tool_get_missing_summary,
@@ -13,7 +13,7 @@ from datax.ai.tools import (
     tool_get_overview,
     tool_get_strong_correlations,
 )
-from datax.profile import DatasetProfile
+from datavoyager.profile import DatasetProfile
 
 
 class DatasetAssistant:

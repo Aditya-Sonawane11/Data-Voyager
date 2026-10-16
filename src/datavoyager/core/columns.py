@@ -8,8 +8,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from datax.config import Settings
-from datax.profile import (
+from datavoyager.config import Settings
+from datavoyager.profile import (
     CategoricalStats,
     ColumnProfile,
     ColumnType,

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pandas as pd
 
-from datax.config import Settings
-from datax.profile import ColumnProfile, ColumnType, CorrelationPair, CorrelationProfile
+from datavoyager.config import Settings
+from datavoyager.profile import ColumnProfile, ColumnType, CorrelationPair, CorrelationProfile
 
 
 def analyze_correlations(

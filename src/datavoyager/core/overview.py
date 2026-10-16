@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pandas as pd
 
-from datax.config import Settings
-from datax.exceptions import DatasetEmptyError
-from datax.profile import ColumnType, OverviewProfile
+from datavoyager.config import Settings
+from datavoyager.exceptions import DatasetEmptyError
+from datavoyager.profile import ColumnType, OverviewProfile
 
 
 def format_bytes(num_bytes: int) -> str:

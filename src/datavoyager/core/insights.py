@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from datax.config import Settings
-from datax.profile import (
+from datavoyager.config import Settings
+from datavoyager.profile import (
     ColumnProfile,
     ColumnType,
     CorrelationProfile,

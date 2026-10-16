@@ -7,7 +7,7 @@ from typing import Any
 
 import pandas as pd
 
-from datax.exceptions import DatasetEmptyError
+from datavoyager.exceptions import DatasetEmptyError
 
 
 def read_csv(

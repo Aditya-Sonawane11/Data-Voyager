@@ -1,16 +1,16 @@
-"""Configuration settings for Datax profiling and analysis."""
+"""Configuration settings for DataVoyager profiling and analysis."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Literal
 
-from datax.exceptions import ConfigurationError
+from datavoyager.exceptions import ConfigurationError
 
 
 @dataclass(slots=True)
 class Settings:
-    """Configurable settings for Datax dataset analysis.
+    """Configurable settings for DataVoyager dataset analysis.
 
     Attributes:
         title: Title of the generated report or profile.
@@ -27,7 +27,7 @@ class Settings:
         offline_mode: Enforce offline operations without outbound network requests.
     """
 
-    title: str = "Datax Profile Report"
+    title: str = "DataVoyager Profile Report"
     sample_size: int | None = None
     random_state: int = 42
     iqr_multiplier: float = 1.5

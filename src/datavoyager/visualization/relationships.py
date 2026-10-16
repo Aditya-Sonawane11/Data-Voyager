@@ -5,7 +5,7 @@ from __future__ import annotations
 import pandas as pd
 import plotly.graph_objects as go
 
-from datax.visualization.distributions import PLOT_THEME
+from datavoyager.visualization.distributions import PLOT_THEME
 
 
 def create_correlation_heatmap(

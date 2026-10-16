@@ -1,4 +1,4 @@
-"""Unit tests for the core Datax profiling and analysis engine."""
+"""Unit tests for the core DataVoyager profiling and analysis engine."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import datax
-from datax.exceptions import ConfigurationError, DatasetEmptyError
-from datax.profile import ColumnType
+import datavoyager
+from datavoyager.exceptions import ConfigurationError, DatasetEmptyError
+from datavoyager.profile import ColumnType
 
 
 def test_analyze_basic_dataframe():
@@ -22,7 +22,7 @@ def test_analyze_basic_dataframe():
         "is_active": np.random.RandomState(42).choice([True, False], size=100),
     })
 
-    report = datax.analyze(df, title="Employee Profile")
+    report = datavoyager.analyze(df, title="Employee Profile")
 
     assert report.overview.n_rows == 100
     assert report.overview.n_cols == 5
@@ -45,7 +45,7 @@ def test_analyze_basic_dataframe():
 
 
 def test_dataframe_immutability():
-    """Ensure that datax.analyze never modifies the user's original DataFrame."""
+    """Ensure that datavoyager.analyze never modifies the user's original DataFrame."""
     original_data = {
         "x": [1.0, 2.0, np.nan, 4.0],
         "y": ["a", "b", "b", "c"],
@@ -53,7 +53,7 @@ def test_dataframe_immutability():
     df = pd.DataFrame(original_data)
     df_copy = df.copy(deep=True)
 
-    _ = datax.analyze(df)
+    _ = datavoyager.analyze(df)
 
     # Check identical values, index, columns, and types
     pd.testing.assert_frame_equal(df, df_copy)
@@ -63,11 +63,11 @@ def test_empty_dataframe_raises():
     """Verify that empty DataFrames raise DatasetEmptyError."""
     empty_df = pd.DataFrame()
     with pytest.raises(DatasetEmptyError):
-        datax.analyze(empty_df)
+        datavoyager.analyze(empty_df)
 
     zero_rows_df = pd.DataFrame(columns=["a", "b", "c"])
     with pytest.raises(DatasetEmptyError):
-        datax.analyze(zero_rows_df)
+        datavoyager.analyze(zero_rows_df)
 
 
 def test_single_row_dataframe():
@@ -77,7 +77,7 @@ def test_single_row_dataframe():
         "cat": ["single_item"],
     })
 
-    report = datax.analyze(df)
+    report = datavoyager.analyze(df)
     assert report.overview.n_rows == 1
     assert report.columns["num"].numerical_stats.count == 1
     assert report.columns["num"].numerical_stats.std == 0.0
@@ -91,7 +91,7 @@ def test_all_missing_column():
         "valid_col": [1, 2, 3, 4, 5],
     })
 
-    report = datax.analyze(df)
+    report = datavoyager.analyze(df)
     col_prof = report.columns["all_null"]
     assert col_prof.missing_count == 5
     assert col_prof.missing_ratio == 1.0
@@ -107,7 +107,7 @@ def test_constant_and_quasi_constant_columns():
         "normal": range(100),
     })
 
-    report = datax.analyze(df)
+    report = datavoyager.analyze(df)
     assert "constant_num" in report.quality.constant_columns
     assert "constant_str" in report.quality.constant_columns
     assert "quasi_constant" in report.quality.quasi_constant_columns
@@ -121,7 +121,7 @@ def test_infinite_and_non_finite_values():
         "label": ["a", "b", "c", "d", "e", "f", "g", "h"],
     })
 
-    report = datax.analyze(df)
+    report = datavoyager.analyze(df)
     inf_col = report.columns["with_inf"]
     assert inf_col.numerical_stats is not None
     assert inf_col.numerical_stats.infinite_count == 2
@@ -136,7 +136,7 @@ def test_outlier_detection_iqr():
     values = [10.0, 11.0, 10.5, 9.8, 10.2, 10.1, 9.9, 10.3, 10.0, 1000.0]
     df = pd.DataFrame({"metric": values})
 
-    report = datax.analyze(df, iqr_multiplier=1.5)
+    report = datavoyager.analyze(df, iqr_multiplier=1.5)
     stats = report.columns["metric"].numerical_stats
     assert stats is not None
     assert stats.outliers_count == 1
@@ -151,7 +151,7 @@ def test_correlation_matrix_and_threshold():
     w = np.random.RandomState(42).randn(100)  # Low correlation
 
     df = pd.DataFrame({"x": x, "y": y, "z": z, "w": w})
-    report = datax.analyze(df, correlation_threshold=0.8)
+    report = datavoyager.analyze(df, correlation_threshold=0.8)
 
     strong_pairs = report.correlations.strong_correlations
     assert len(strong_pairs) >= 2
@@ -168,7 +168,7 @@ def test_correlation_matrix_and_threshold():
 def test_invalid_settings():
     """Verify that invalid configuration raises ConfigurationError."""
     with pytest.raises(ConfigurationError):
-        datax.analyze(pd.DataFrame({"a": [1, 2]}), sample_size=-5)
+        datavoyager.analyze(pd.DataFrame({"a": [1, 2]}), sample_size=-5)
 
     with pytest.raises(ConfigurationError):
-        datax.analyze(pd.DataFrame({"a": [1, 2]}), correlation_method="invalid_method")
+        datavoyager.analyze(pd.DataFrame({"a": [1, 2]}), correlation_method="invalid_method")

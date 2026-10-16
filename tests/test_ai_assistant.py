@@ -5,7 +5,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-import datax
+import datavoyager
 
 
 @pytest.fixture
@@ -16,7 +16,7 @@ def sample_report():
         "department": ["IT"] * 10 + ["HR"] * 10,
         "score": [95.0, 88.0, None, 72.0, None, 85.0, 90.0, 77.0, None, 82.0] * 2,
     })
-    return datax.analyze(df, title="Test Dataset")
+    return datavoyager.analyze(df, title="Test Dataset")
 
 
 def test_assistant_missing_question(sample_report):

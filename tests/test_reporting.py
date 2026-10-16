@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-import datax
+import datavoyager
 
 
 @pytest.fixture
@@ -20,7 +20,7 @@ def test_df():
 
 
 def test_to_json_and_dict(tmp_path: Path, test_df: pd.DataFrame):
-    report = datax.analyze(test_df, title="JSON Test")
+    report = datavoyager.analyze(test_df, title="JSON Test")
 
     # To dict
     dict_repr = report.to_dict()
@@ -42,7 +42,7 @@ def test_to_json_and_dict(tmp_path: Path, test_df: pd.DataFrame):
 
 
 def test_to_html_generation(tmp_path: Path, test_df: pd.DataFrame):
-    report = datax.analyze(test_df, title="HTML Export Test")
+    report = datavoyager.analyze(test_df, title="HTML Export Test")
 
     # Direct generate
     html_str = report.to_html()
@@ -58,7 +58,7 @@ def test_to_html_generation(tmp_path: Path, test_df: pd.DataFrame):
 
 
 def test_summary_output(test_df: pd.DataFrame):
-    report = datax.analyze(test_df, title="Summary Test")
+    report = datavoyager.analyze(test_df, title="Summary Test")
     summary = report.summary()
     assert "Dimensions" in summary
     assert "20 rows x 3 columns" in summary

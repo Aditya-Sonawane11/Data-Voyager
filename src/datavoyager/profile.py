@@ -1,4 +1,4 @@
-"""Data structures and representations for Datax dataset profiles."""
+"""Data structures and representations for DataVoyager dataset profiles."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from datax.config import Settings
+from datavoyager.config import Settings
 
 
 class ColumnType(str, Enum):
@@ -208,7 +208,7 @@ class DatasetProfile:
         ms = self.missing
 
         lines = [
-            f"=== Datax Profile: {self.config.title} ===",
+            f"=== DataVoyager Profile: {self.config.title} ===",
             f"Dimensions     : {ov.n_rows:,} rows x {ov.n_cols:,} columns ({ov.total_cells:,} cells)",
             f"Memory Usage   : {ov.memory_formatted}",
             f"Column Types   : " + ", ".join(f"{k}: {v}" for k, v in ov.type_counts.items()),
@@ -242,13 +242,13 @@ class DatasetProfile:
 
     def to_html(self, path: str | Path | None = None) -> str:
         """Generate standalone HTML report."""
-        from datax.report.builder import ReportBuilder
+        from datavoyager.report.builder import ReportBuilder
 
         builder = ReportBuilder(self, df=self._df)
         return builder.generate(output_path=path)
 
     def chat(self, mode: str = "offline", **kwargs: Any) -> Any:
         """Create an AI assistant session for conversational dataset exploration."""
-        from datax.ai.assistant import DatasetAssistant
+        from datavoyager.ai.assistant import DatasetAssistant
 
         return DatasetAssistant(profile=self, mode=mode, **kwargs)
