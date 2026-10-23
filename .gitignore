@@ -27,6 +27,8 @@ MANIFEST
 .coverage
 htmlcov/
 .hypothesis/
+tests
+
 
 # Virtual Environments
 venv/

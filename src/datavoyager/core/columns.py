@@ -74,14 +74,12 @@ def profile_numerical_column(
     p75 = float(np.percentile(arr, 75))
     iqr = float(p75 - p25)
 
-    # Skewness (Fisher-Pearson coefficient of skewness)
+    # Skewness (unbiased adjusted Fisher-Pearson, matches scipy/Excel)
     skewness: float | None = None
     if finite_count >= 3 and c_std > 0:
         try:
-            m3 = float(np.mean((arr - c_mean) ** 3))
-            skewness = float(m3 / (c_std**3))
-            if math.isnan(skewness) or math.isinf(skewness):
-                skewness = None
+            skewness_raw = float(pd.Series(arr).skew())
+            skewness = None if (math.isnan(skewness_raw) or math.isinf(skewness_raw)) else skewness_raw
         except Exception:
             skewness = None
 

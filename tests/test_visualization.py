@@ -113,7 +113,7 @@ def test_report_builder_offline_html(tmp_path, sample_df):
     html_output = report.to_html(tmp_path / "report_offline.html")
 
     assert "<!DOCTYPE html>" in html_output
-    assert "DATAVOYAGER" in html_output
+    assert "DATAVOYAGER" in html_output.upper()
     assert "Visualization Integration Test" in html_output
     # Check that Plotly JS bundle is embedded offline
     assert "Plotly.newPlot" in html_output

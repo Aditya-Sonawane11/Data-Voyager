@@ -237,7 +237,7 @@ class DatasetProfile:
                 lines.append(f"  {prefix} {insight.title}: {insight.message}")
 
         summary_text = "\n".join(lines)
-        print(summary_text)
+        print(summary_text)  # explicit print for terminal convenience; capture via return value
         return summary_text
 
     def to_html(self, path: str | Path | None = None) -> str:
@@ -252,3 +252,26 @@ class DatasetProfile:
         from datavoyager.ai.assistant import DatasetAssistant
 
         return DatasetAssistant(profile=self, mode=mode, **kwargs)
+
+    def _repr_html_(self) -> str:
+        """Render the full interactive HTML report inline inside Jupyter / IPython.
+
+        This is automatically called by Jupyter when the profile object is the
+        last expression in a cell (i.e. just typing ``report`` in a cell renders it).
+
+        Returns:
+            HTML string for inline display, or a minimal HTML summary on failure.
+        """
+        try:
+            return self.to_html(path=None)
+        except Exception as exc:  # pragma: no cover
+            ov = self.overview
+            return (
+                f"<div style='font-family:monospace;padding:1em;border:1px solid #334155;'"
+                f"border-radius:6px;background:#0f172a;color:#f8fafc'>"
+                f"<b>DataVoyager Profile</b>: {self.config.title}<br/>"
+                f"{ov.n_rows:,} rows &times; {ov.n_cols:,} columns &mdash; "
+                f"{ov.memory_formatted}<br/>"
+                f"<small style='color:#f43f5e'>Inline render failed: {exc}</small>"
+                f"</div>"
+            )

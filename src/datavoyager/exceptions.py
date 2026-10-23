@@ -7,9 +7,6 @@ class DataVoyagerError(Exception):
     """Base exception for all DataVoyager errors."""
 
 
-# Backward compatibility alias
-DataxError = DataVoyagerError
-
 
 class DatasetEmptyError(DataVoyagerError):
     """Raised when an empty DataFrame or CSV is provided."""
